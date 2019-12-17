@@ -1,0 +1,74 @@
+
+invposting status dead lock
+
+notification header worng when fail
+
+magic boo set rvd dscp posted
+
+==============================================
+
+invposting new method
+
+transfer double post
+
+yk cost problem cant post stock take
+
+
+File format add UOM
+file format options:append or replace
+
+oldtown 
+1521 errror number
+sales details listing saved report
+
+
+
+
+doc date after post changed jdl JLD-0154  grn receive date
+
+
+
+
+
+sushi king patch PO
+select * from [00705].purorderh where GrossAmt=0
+
+begin tran
+
+UPDATE [00705].purorderh
+SET [00705].purorderh.GrossAmt = isnull(f.sumgross,0),
+[00705].purorderh.DiscAmt = isnull(f.sumdisc,0),
+[00705].purorderh.NetAmt = isnull(f.sumnet,0),
+[00705].purorderh.TaxAmtExc = isnull(f.sumtaxexc,0),
+[00705].purorderh.TaxAmtInc = isnull(f.sumtaxinc,0),
+[00705].purorderh.NetAmtExc = isnull(f.sumnetexc,0)
+FROM [00705].purorderh m
+INNER JOIN
+(
+select * from [00705].purorderh as h left join 
+(SELECT PONo as dPONo, 
+SUM (GrossAmt) as sumgross ,
+SUM (DiscAmt) as sumdisc ,
+SUM (NetAmt) as sumnet,
+SUM (TaxAmtExc) as sumtaxexc,
+SUM (TaxAmtInc) as sumtaxinc,
+SUM (NetAmtExc) as sumnetexc
+FROM [00705].PurOrderD
+GROUP BY PONo) as d on h.pono=d.dPONo
+) f ON m.PONo = f.PONo 
+
+rollback
+commit
+
+
+select pono,GrossAmt,sumgross,DiscAmt,sumdisc,NetAmt,sumnet,TaxAmtExc,sumtaxexc,TaxAmtInc,sumtaxinc,NetAmtExc,sumnetexc from(
+select * from [00705].purorderh as h left join 
+(SELECT PONo as dPONo, 
+SUM (GrossAmt) as sumgross ,
+SUM (DiscAmt) as sumdisc ,
+SUM (NetAmt) as sumnet,
+SUM (TaxAmtExc) as sumtaxexc,
+SUM (TaxAmtInc) as sumtaxinc,
+SUM (NetAmtExc) as sumnetexc
+FROM [00705].PurOrderD
+GROUP BY PONo) as d on h.pono=d.dPONo) as result
